@@ -83,7 +83,7 @@ if (!module.parent) {
       default: ''
     })
     .options('algorithm', {
-      describe: 'packing algorithm: growing-binpacking (default), binpacking (requires passing --width and --height options), vertical or horizontal',
+      describe: 'packing algorithm: growing-binpacking (default), multiple-binpacking, binpacking (requires passing --width and --height options), vertical or horizontal',
       default: 'growing-binpacking'
     })
     .options('width', {
@@ -145,7 +145,7 @@ if (!module.parent) {
  * @param {boolean} options.trim removes transparent whitespaces around images
  * @param {boolean} options.square texture should be square
  * @param {boolean} options.powerOfTwo texture's size (both width and height) should be a power of two
- * @param {string} options.algorithm packing algorithm: growing-binpacking (default), binpacking (requires passing width and height options), vertical or horizontal
+ * @param {string} options.algorithm packing algorithm: growing-binpacking (default), multipl-binpacking, binpacking (requires passing width and height options), vertical or horizontal
  * @param {boolean} options.padding padding between images in spritesheet
  * @param {string} options.sort Sort method: maxside (default), area, width, height or none
  * @param {boolean} options.divisibleByTwo every generated frame coordinates should be divisible by two
@@ -209,10 +209,18 @@ function generate(files, options, callback) {
       generator.determineCanvasSize(files, options, callback);
     },
     function (options, callback) {
-      generator.generateImage(files, options, callback);
+      if (options.atlases) {
+        generator.generateMultiples(generator.generateImage, options, callback);
+      } else {
+        generator.generateImage(files, options, callback);
+      }
     },
     function (callback) {
-      generator.generateData(files, options, callback);
+      if (options.atlases) {
+        generator.generateMultiples(generator.generateData, options, callback);
+      } else {
+        generator.generateData(files, options, callback);
+      }
     }
   ],
     callback);
